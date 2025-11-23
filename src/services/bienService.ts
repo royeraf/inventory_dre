@@ -2,8 +2,8 @@ import http from "./http";
 
 export const bienService = {
   // OBTENER TODOS LOS BIENES
-  getAll() {
-    return http.get("/bienes/")
+  getAll(params: any = {}) {
+    return http.get("/bienes/", { params })
       .then((r) => ({ success: true, data: r.data }))
       .catch((e) => ({ success: false, message: e.response?.data?.message }));
   },

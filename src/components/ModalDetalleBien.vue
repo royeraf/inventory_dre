@@ -272,25 +272,16 @@ interface Bien {
   marca: string;
   modelo: string;
   ubicacion: string;
-  estado: "Bueno" | "Regular" | "Malo";
+  estado?: string;
   detalle_bien: string;
   estado_nombre: string;
   responsable_nombre: string;
   ubicacion_nombre: string;
 }
 
-interface Movimiento {
-  tipo: "asignacion" | "traslado" | "devolucion" | "baja";
-  fecha: string;
-  desde: string;
-  hacia: string;
-  responsable: string;
-  estado: string;
-  detalle_bien: string;
-  observacion?: string;
-}
 
-const props = defineProps<{
+
+defineProps<{
   isOpen: boolean;
   bien: Bien;
 }>();
@@ -301,136 +292,10 @@ const activeTab = ref<"detalles" | "movimientos" | "ubicacion" | "asignacion">(
   "detalles"
 );
 
-// Datos del formulario de asignación
-const asignForm = ref({
-  nuevoResponsable: "",
-  nuevaUbicacion: "",
-  observacion: "",
-});
 
-// Datos de ejemplo (luego los reemplazas por API)
-const responsables = ref([
-  "Juan Pérez",
-  "María López",
-  "Carlos Ramírez",
-  "Ana Torres",
-]);
-const ubicaciones = ref(["Almacén", "Oficina 1", "Oficina 2", "Contabilidad"]);
 
-// Guardar asignación/reasignación
-const guardarAsignacion = () => {
-  if (!asignForm.value.nuevoResponsable || !asignForm.value.nuevaUbicacion) {
-    alert("Completa todos los campos");
-    return;
-  }
 
-  // Agrega al historial
-  movimientos.value.unshift({
-    tipo: "asignacion",
-    fecha: new Date().toLocaleString("es-PE"),
-    desde: props.bien.ubicacion,
-    hacia: asignForm.value.nuevaUbicacion,
-    responsable: asignForm.value.nuevoResponsable,
-    estado: "Completado",
-    observacion: asignForm.value.observacion,
-  });
 
-  // Actualiza el bien visualmente
-  props.bien.responsable = asignForm.value.nuevoResponsable;
-  props.bien.ubicacion = asignForm.value.nuevaUbicacion;
-
-  // Resetear formulario
-  asignForm.value = {
-    nuevoResponsable: "",
-    nuevaUbicacion: "",
-    observacion: "",
-  }; // Datos del formulario de asignación
-  const asignForm = ref({
-    nuevoResponsable: "",
-    nuevaUbicacion: "",
-    observacion: "",
-  });
-
-  // Datos de ejemplo (luego los reemplazas por API)
-  const responsables = ref([
-    "Juan Pérez",
-    "María López",
-    "Carlos Ramírez",
-    "Ana Torres",
-  ]);
-  const ubicaciones = ref([
-    "Almacén",
-    "Oficina 1",
-    "Oficina 2",
-    "Contabilidad",
-  ]);
-
-  // Guardar asignación/reasignación
-  const guardarAsignacion = () => {
-    if (!asignForm.value.nuevoResponsable || !asignForm.value.nuevaUbicacion) {
-      alert("Completa todos los campos");
-      return;
-    }
-
-    // Agrega al historial
-    movimientos.value.unshift({
-      tipo: "asignacion",
-      fecha: new Date().toLocaleString("es-PE"),
-      desde: props.bien.ubicacion,
-      hacia: asignForm.value.nuevaUbicacion,
-      responsable: asignForm.value.nuevoResponsable,
-      estado: "Completado",
-      observacion: asignForm.value.observacion,
-    });
-
-    // Actualiza el bien visualmente
-    props.bien.responsable = asignForm.value.nuevoResponsable;
-    props.bien.ubicacion = asignForm.value.nuevaUbicacion;
-
-    // Resetear formulario
-    asignForm.value = {
-      nuevoResponsable: "",
-      nuevaUbicacion: "",
-      observacion: "",
-    };
-
-    alert("Asignación guardada correctamente");
-    activeTab.value = "movimientos";
-  };
-
-  alert("Asignación guardada correctamente");
-  activeTab.value = "movimientos";
-};
-
-// Datos de ejemplo para movimientos
-const movimientos = ref<Movimiento[]>([
-  {
-    tipo: "asignacion",
-    fecha: "15/11/2024 10:30 AM",
-    desde: "Almacén Central",
-    hacia: "Oficina Principal",
-    responsable: "Juan Pérez García",
-    estado: "Completado",
-    observacion: "Asignación inicial del equipo",
-  },
-  {
-    tipo: "traslado",
-    fecha: "20/10/2024 02:15 PM",
-    desde: "Oficina Principal",
-    hacia: "Contabilidad",
-    responsable: "María López Silva",
-    estado: "Completado",
-    observacion: "Traslado por reorganización de oficinas",
-  },
-  {
-    tipo: "traslado",
-    fecha: "05/09/2024 09:00 AM",
-    desde: "Contabilidad",
-    hacia: "Oficina Principal",
-    responsable: "Juan Pérez García",
-    estado: "Completado",
-  },
-]);
 
 // Fecha de última actualización
 const fechaActualizacion = computed(() => {

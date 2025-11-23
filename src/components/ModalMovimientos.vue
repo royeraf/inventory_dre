@@ -226,7 +226,7 @@ interface Bien {
   descripcion: string;
   ubicacion_id: number;
   responsable_id: number;
-  estado: string;
+  estado?: string;
 }
 
 interface Movimiento {
@@ -284,7 +284,8 @@ const fetchMovimientos = async (bienId: number) => {
   console.log(`Fetching movimientos for bien ID: ${bienId}`);
   // Llamar a getById
   movimientoService.getById(bienId).then((response) => {
-    movimientos.value = response.data;
+    const res = response as any;
+    movimientos.value = res.data;
   });
 
 };
@@ -294,7 +295,7 @@ watch(
   (newVal) => {
     if (newVal && props.bien) {
       form.bien_id = props.bien.id;
-      movimientoService.getById(props.bien.id);
+      fetchMovimientos(props.bien.id);
       activeTab.value = "historial"; // Reset to history tab on open
     }
   }
