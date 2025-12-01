@@ -5,8 +5,8 @@ export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: JSON.parse(localStorage.getItem("user") || "null"),
     token: localStorage.getItem("token") || null,
-
-    isInitialized: false, // 🔥 Importante !!!!!
+    isInitialized: false,
+    error: null as string | null,
   }),
 
   getters: {
@@ -23,7 +23,7 @@ export const useAuthStore = defineStore("auth", {
         this.token = storedToken;
 
         try {
-          const res = await meService(); // 🔥 ya no se pasa token
+          const res = await meService();
           if (res.user) {
             this.user = res.user;
             localStorage.setItem("user", JSON.stringify(res.user));
@@ -36,25 +36,34 @@ export const useAuthStore = defineStore("auth", {
 
       this.isInitialized = true;
     },
+
     async login(dni: string, contrasena: string) {
-      const res = await loginService(dni, contrasena);
+      this.error = null;
+      try {
+        const res = await loginService(dni, contrasena);
 
-      if (res.access_token) {
-        this.token = res.access_token;
-        this.user = res.user;
+        if (res.access_token) {
+          this.token = res.access_token;
+          this.user = res.user;
 
-        localStorage.setItem("token", this.token);
-        localStorage.setItem("user", JSON.stringify(this.user));
+          if (this.token) {
+            localStorage.setItem("token", this.token);
+          }
+          localStorage.setItem("user", JSON.stringify(this.user));
 
-        this.isInitialized = true;
+          this.isInitialized = true;
+        }
+        return res;
+      } catch (e: any) {
+        this.error = e.response?.data?.message || "Error al iniciar sesión";
+        throw e;
       }
-
-      return res;
     },
 
     logout() {
       this.token = null;
       this.user = null;
+      this.error = null;
       localStorage.removeItem("token");
       localStorage.removeItem("user");
 

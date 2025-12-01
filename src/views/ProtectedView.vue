@@ -34,12 +34,8 @@
       <!-- Logo y Header -->
       <div class="relative z-10 p-6 border-b border-slate-700 flex justify-between items-center">
         <div class="flex items-center gap-3">
-          <div
-            class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
+          <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+            <img src="@/assets/logo.png" alt="Logo DRE" class="w-full h-full object-contain p-1" />
           </div>
           <div>
             <h1 class="text-base font-bold leading-tight">DRE Huánuco</h1>
@@ -82,12 +78,12 @@
         <!-- Inventario - Todos los roles -->
         <router-link to="/protected" exact
           class="group flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200" :class="isInventarioActive
-              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30'
-              : 'hover:bg-slate-700/50'
+            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30'
+            : 'hover:bg-slate-700/50'
             " @click="isSidebarOpen = false">
           <svg class="w-5 h-5 transition-colors" :class="isInventarioActive
-              ? 'text-white'
-              : 'text-slate-400 group-hover:text-white'
+            ? 'text-white'
+            : 'text-slate-400 group-hover:text-white'
             " fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
@@ -98,12 +94,12 @@
         <!-- Reportes - Todos los roles -->
         <router-link to="/protected/reportes"
           class="group flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200" :class="isReportesActive
-              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30'
-              : 'hover:bg-slate-700/50'
+            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30'
+            : 'hover:bg-slate-700/50'
             " @click="isSidebarOpen = false">
           <svg class="w-5 h-5 transition-colors" :class="isReportesActive
-              ? 'text-white'
-              : 'text-slate-400 group-hover:text-white'
+            ? 'text-white'
+            : 'text-slate-400 group-hover:text-white'
             " fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -114,12 +110,12 @@
         <!-- Usuarios - Solo Administrador -->
         <router-link v-if="isAdmin" to="/protected/usuarios"
           class="group flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200" :class="isUsuariosActive
-              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30'
-              : 'hover:bg-slate-700/50'
+            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30'
+            : 'hover:bg-slate-700/50'
             " @click="isSidebarOpen = false">
           <svg class="w-5 h-5 transition-colors" :class="isUsuariosActive
-              ? 'text-white'
-              : 'text-slate-400 group-hover:text-white'
+            ? 'text-white'
+            : 'text-slate-400 group-hover:text-white'
             " fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -130,12 +126,12 @@
         <!-- Ajustes - Solo Administrador -->
         <router-link v-if="isAdmin" to="/protected/ajustes"
           class="group flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200" :class="isAjustesActive
-              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30'
-              : 'hover:bg-slate-700/50'
+            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30'
+            : 'hover:bg-slate-700/50'
             " @click="isSidebarOpen = false">
           <svg class="w-5 h-5 transition-colors" :class="isAjustesActive
-              ? 'text-white'
-              : 'text-slate-400 group-hover:text-white'
+            ? 'text-white'
+            : 'text-slate-400 group-hover:text-white'
             " fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -154,7 +150,7 @@
         <div class="px-4 py-3 bg-slate-800/50 rounded-lg border border-slate-700">
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs text-slate-400">Bienes registrados</span>
-            <span class="text-sm font-bold text-white">1,234</span>
+            <span class="text-sm font-bold text-white">{{ totalBienes }}</span>
           </div>
           <div class="w-full bg-slate-700 rounded-full h-1.5">
             <div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-1.5 rounded-full" style="width: 75%"></div>
@@ -246,8 +242,9 @@
 
 <script setup lang="ts">
 import { useAuthStore } from "../stores/auth";
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { bienService } from "../services/bienService";
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -335,7 +332,25 @@ const currentPageSubtitle = computed(() => {
   if (path.includes("/usuarios"))
     return "Administración de usuarios del sistema";
   if (path.includes("/ajustes")) return "Configuración general del sistema";
+  if (path.includes("/ajustes")) return "Configuración general del sistema";
   return "DRE Huánuco";
+});
+
+const totalBienes = ref(0);
+
+const fetchStats = async () => {
+  try {
+    const res: any = await bienService.getStats();
+    if (res.success) {
+      totalBienes.value = res.data.total || 0;
+    }
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+  }
+};
+
+onMounted(() => {
+  fetchStats();
 });
 </script>
 

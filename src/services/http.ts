@@ -39,9 +39,12 @@ http.interceptors.response.use(
 
     // Token expirado o inválido
     if (error.response?.status === 401) {
-      const auth = useAuthStore();
-      auth.logout();
-      window.location.href = "/login";
+      // Evitar redirección si el error viene del login
+      if (!error.config.url?.includes('/auth/login')) {
+        const auth = useAuthStore();
+        auth.logout();
+        window.location.href = "/login";
+      }
     }
 
     return Promise.reject(error);

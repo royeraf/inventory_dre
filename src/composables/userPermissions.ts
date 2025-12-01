@@ -4,11 +4,13 @@ import { computed } from "vue";
 import { useAuthStore } from "../stores/auth";
 
 // Definición de roles
-export enum UserRole {
-  ADMIN = 1,
-  INVENTARIADOR = 2,
-  CONSULTA = 3,
-}
+export const UserRole = {
+  ADMIN: 1,
+  INVENTARIADOR: 2,
+  CONSULTA: 3,
+} as const;
+
+export type UserRole = typeof UserRole[keyof typeof UserRole];
 
 // Definición de permisos por módulo
 export const permissions = {
@@ -59,7 +61,7 @@ export function usePermissions() {
       modulePermissions[action as keyof typeof modulePermissions];
     if (!actionPermissions) return false;
 
-    return actionPermissions.includes(auth.user.rol_id as UserRole);
+    return (actionPermissions as number[]).includes(auth.user.rol_id);
   };
 
   // Permisos específicos para cada módulo
@@ -114,17 +116,3 @@ export function usePermissions() {
     getRoleName,
   };
 }
-
-// Ejemplo de uso en componentes:
-/*
-<script setup lang="ts">
-import { usePermissions } from '@/composables/usePermissions';
-
-const { can, isAdmin, isInventariador } = usePermissions();
-
-// En el template puedes usar:
-// v-if="can.createBien.value"
-// v-if="can.viewUsuarios.value"
-// v-if="isAdmin.value"
-</script>
-*/

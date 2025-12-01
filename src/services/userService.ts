@@ -1,23 +1,27 @@
-import { api } from "./api";
+import http from "./http";
 
 export const userService = {
   getAll() {
-    return api.get("/users");
+    return http.get("/usuarios");
   },
 
   getById(id: number) {
-    return api.get(`/users/${id}`);
+    return http.get(`/usuarios/${id}`);
   },
 
   create(data: any) {
-    return api.post("/users", data);
+    return http.post("/usuarios", data);
   },
 
   update(id: number, data: any) {
-    return api.put(`/users/${id}`, data);
+    return http.put(`/usuarios/${id}`, data);
   },
 
   delete(id: number) {
-    return api.delete(`/users/${id}`);
+    return http.delete(`/usuarios/${id}`);
+  },
+
+  getRoles() {
+    return http.get("/usuarios/roles");
   },
 };

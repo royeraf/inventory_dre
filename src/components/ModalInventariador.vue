@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="isOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 overflow-y-auto"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-md overflow-y-auto"
   >
     <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-2xl p-6">
       <h3 class="text-xl font-semibold mb-4">Agregar inventariador</h3>

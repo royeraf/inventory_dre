@@ -5,7 +5,7 @@ import { ref } from "vue";
 import { bienService } from "../services/bienService";
 
 export const useBienesStore = defineStore("bienes", () => {
-  const bienes = ref([]);
+  const bienes = ref<any[]>([]);
   const loading = ref(false);
   const error = ref("");
 
@@ -14,7 +14,14 @@ export const useBienesStore = defineStore("bienes", () => {
     error.value = "";
     try {
       const res = await bienService.getAll();
-      bienes.value = res.data;
+      if (res.success) {
+          // @ts-ignore
+          // La respuesta ahora tiene { data: [], pagination: {} }
+          bienes.value = res.data.data || [];
+      } else {
+          // @ts-ignore
+          error.value = res.message;
+      }
     } catch (err: any) {
       error.value = err.message || "Error al obtener bienes";
     } finally {
@@ -25,7 +32,10 @@ export const useBienesStore = defineStore("bienes", () => {
   const createBien = async (data: any) => {
     try {
       const res = await bienService.create(data);
-      bienes.value.push(res.data);
+      if (res.success) {
+          // @ts-ignore
+          bienes.value.push(res.data);
+      }
     } catch (err: any) {
       console.error("Error al crear bien:", err);
     }

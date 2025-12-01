@@ -80,7 +80,7 @@ const router = createRouter({
 // 🛡️ GUARD GLOBAL DE NAVEGACIÓN
 // ----------------------------------------------------------
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const auth = useAuthStore();
 
   // Esperar a que el store se inicialice (restaure sesión si existe)
@@ -124,7 +124,8 @@ router.beforeEach(async (to, from, next) => {
 
     // Validación de roles
     if (to.meta.roles) {
-      if (!auth.user || !to.meta.roles.includes(auth.user.rol_id)) {
+      const roles = to.meta.roles as number[];
+      if (!auth.user || !roles.includes(auth.user.rol_id)) {
         console.log("⛔ Sin permisos para esta ruta, redirigiendo");
         return next({ name: "inventario" });
       }

@@ -29,10 +29,59 @@ export const bienService = {
       .catch((e) => ({ success: false, message: e.response?.data?.message }));
   },
 
+  // OBTENER ESTADÍSTICAS
+  getStats() {
+    return http.get("/bienes/stats")
+      .then((r) => ({ success: true, data: r.data }))
+      .catch((e) => ({ success: false, message: e.response?.data?.message }));
+  },
+
   // ELIMINAR
   delete(id: number) {
     return http.delete(`/bienes/${id}`)
       .then((r) => ({ success: true, data: r.data }))
       .catch((e) => ({ success: false, message: e.response?.data?.message }));
   },
+  // VERIFICAR CÓDIGO
+  verifyCode(codigo: string) {
+    return http.get(`/bienes/verify-code?codigo=${codigo}`)
+      .then((r) => ({ success: true, data: r.data }))
+      .catch((e) => ({ success: false, message: e.response?.data?.message }));
+  },
+
+  // OBTENER ACTIVIDAD RECIENTE
+  getRecentActivity() {
+    return http.get('/reportes/recent-activity')
+      .then((r) => ({ success: true, data: r.data }))
+      .catch((e) => ({ success: false, message: e.response?.data?.message }));
+  },
+
+  // OBTENER GRÁFICO DE MOVIMIENTOS
+  getMovementsChart() {
+    return http.get('/reportes/movements-chart')
+      .then((r) => ({ success: true, data: r.data }))
+      .catch((e) => ({ success: false, message: e.response?.data?.message }));
+  },
+
+  // OBTENER OPCIONES DE DETALLES PARA REPORTES
+  getDetallesOptions() {
+    return http.get('/reportes/detalles-options')
+      .then((r) => r.data)
+      .catch((e) => {
+        console.error("Error fetching detalles options:", e);
+        return [];
+      });
+  },
+
+  // GENERAR REPORTE PDF DE BIENES POR ESTADO
+  generatePdfReport(filters: any) {
+    return http.post('/reportes/pdf-bienes-estado', filters, {
+      responseType: 'blob'
+    })
+      .then((r) => r.data)
+      .catch((e) => {
+        console.error("Error generating PDF report:", e);
+        throw e;
+      });
+  }
 };

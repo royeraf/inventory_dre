@@ -3,7 +3,7 @@
     enter-to-class="opacity-100" leave-active-class="transition-opacity duration-200 ease-in"
     leave-from-class="opacity-100" leave-to-class="opacity-0">
     <div v-if="isOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-md p-4"
       @click.self="closeModal">
       <Transition enter-active-class="transition-all duration-300 ease-out" enter-from-class="opacity-0 scale-95"
         enter-to-class="opacity-100 scale-100" leave-active-class="transition-all duration-200 ease-in"
@@ -60,7 +60,14 @@
           <div class="overflow-y-auto p-6 flex-grow">
             <!-- Historial Tab -->
             <div v-if="activeTab === 'historial'">
-              <div v-if="movimientos.length === 0" class="text-center py-12">
+              <!-- Loader -->
+              <div v-if="isLoading" class="flex flex-col justify-center items-center py-12">
+                <i class="pi pi-spin pi-spinner text-4xl text-purple-600 mb-3"></i>
+                <span class="text-gray-500 font-medium">Cargando historial...</span>
+              </div>
+
+              <!-- Empty State -->
+              <div v-else-if="movimientos.length === 0" class="text-center py-12">
                 <i class="pi pi-inbox text-5xl text-gray-300 mb-4" style="line-height: 1"></i>
                 <p class="text-gray-500 text-lg font-medium mb-2">
                   Sin movimientos registrados
@@ -87,34 +94,44 @@
                           <h4 class="font-semibold text-gray-800 capitalize">
                             {{ mov.tipo }}
                           </h4>
-                          <p class="text-sm text-gray-500">{{ mov.fecha }}</p>
+                          <p class="text-sm text-gray-500">{{ formatDate(mov.fecha) }}</p>
                         </div>
-                        <span class="px-2.5 py-1 rounded-full text-xs font-medium" :class="getStatusClass(mov.estado)">
-                          {{ mov.estado }}
-                        </span>
                       </div>
                       <div class="space-y-2 text-sm mt-3 pt-3 border-t">
-                        <p>
-                          <span class="text-gray-600">De:</span>
+                        <p v-if="mov.ubicacion_actual">
+                          <span class="text-gray-600">Ubicación:</span>
                           <span class="font-medium text-gray-800 ml-2">{{
-                            mov.desde
-                            }}</span>
+                            mov.ubicacion_actual
+                          }}</span>
                         </p>
-                        <p>
-                          <span class="text-gray-600">Hacia:</span>
-                          <span class="font-medium text-gray-800 ml-2">{{
-                            mov.hacia
-                            }}</span>
-                        </p>
-                        <p>
+                        <p v-if="mov.responsable">
                           <span class="text-gray-600">Responsable:</span>
                           <span class="font-medium text-gray-800 ml-2">{{
                             mov.responsable
+                          }}</span>
+                        </p>
+                        <p v-if="mov.modalidad_responsable">
+                          <span class="text-gray-600">Modalidad:</span>
+                          <span class="font-medium text-gray-800 ml-2">{{
+                            mov.modalidad_responsable
                             }}</span>
                         </p>
-                        <p v-if="mov.observacion" class="pt-2 text-gray-600">
+                        <p v-if="mov.estado_bien_actual">
+                          <span class="text-gray-600">Estado del Bien:</span>
+                          <span class="font-medium text-gray-800 ml-2">{{
+                            mov.estado_bien_actual
+                            }}</span>
+                        </p>
+
+                        <p v-if="mov.inventariador_nombre">
+                          <span class="text-gray-600">Registrado por:</span>
+                          <span class="font-medium text-gray-800 ml-2">{{
+                            mov.inventariador_nombre
+                          }}</span>
+                        </p>
+                        <p v-if="mov.observaciones" class="pt-2 text-gray-600">
                           <i class="pi pi-info-circle mr-1"></i>
-                          <span class="italic">{{ mov.observacion }}</span>
+                          <span class="italic">{{ mov.observaciones }}</span>
                         </p>
                       </div>
                     </div>
@@ -125,28 +142,31 @@
 
             <!-- Registrar Tab -->
             <div v-if="activeTab === 'registrar'">
-              <form @submit.prevent="submitMovimiento" class="space-y-5">
+              <form @submit="submitMovimiento" class="space-y-5">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <!-- Tipo de Movimiento -->
                   <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo de Movimiento</label>
-                    <select v-model="form.tipo"
+                    <select v-model="tipo" v-bind="tipoProps"
                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-                      required>
+                      :class="{ 'border-red-500': errors.tipo }">
                       <option disabled value="">Seleccione un tipo...</option>
                       <option>Asignación</option>
                       <option>Traslado</option>
-                      <option>Devolución</option>
+                      <option>Retiro</option>
                       <option>Baja</option>
+                      <option>Cambio de Estado</option>
                     </select>
+                    <p v-if="errors.tipo" class="mt-1 text-sm text-red-500">{{ errors.tipo }}</p>
                   </div>
 
                   <!-- Fecha del Movimiento -->
                   <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha del Movimiento</label>
-                    <input v-model="form.fecha" type="date"
+                    <input v-model="fecha" v-bind="fechaProps" type="date"
                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                      required />
+                      :class="{ 'border-red-500': errors.fecha }" />
+                    <p v-if="errors.fecha" class="mt-1 text-sm text-red-500">{{ errors.fecha }}</p>
                   </div>
                 </div>
 
@@ -154,39 +174,48 @@
                   <!-- Nueva Ubicación -->
                   <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Nueva Ubicación</label>
-                    <select v-model="form.ubicacion_id"
-                      class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-                      required>
-                      <option disabled value="">Seleccione ubicación...</option>
-                      <option v-for="ubic in ubicaciones" :key="ubic.id" :value="ubic.id">
-                        {{ ubic.nombre }}
-                      </option>
-                    </select>
-                    <input v-model="form.ubicacion_id" type="text"
+                    <input v-model="ubicacion_destino" v-bind="ubicacion_destinoProps" type="text"
+                      placeholder="Ingrese la nueva ubicación"
                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                      required />
+                      :class="{ 'border-red-500': errors.ubicacion_destino }" />
+                    <p v-if="errors.ubicacion_destino" class="mt-1 text-sm text-red-500">{{ errors.ubicacion_destino }}
+                    </p>
                   </div>
 
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <!-- Nuevo Responsable -->
                   <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Nuevo Responsable</label>
-                    <select v-model="form.responsable_id"
+                    <input v-model="responsable_nuevo" v-bind="responsable_nuevoProps" type="text"
+                      placeholder="Ingrese el nuevo responsable"
+                      class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                      :class="{ 'border-red-500': errors.responsable_nuevo }" />
+                    <p v-if="errors.responsable_nuevo" class="mt-1 text-sm text-red-500">{{ errors.responsable_nuevo }}
+                    </p>
+                  </div>
+
+                  <!-- Modalidad del Nuevo Responsable -->
+                  <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Modalidad del Responsable</label>
+                    <select v-model="modalidad_responsable_nuevo" v-bind="modalidad_responsable_nuevoProps"
                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-                      required>
-                      <option disabled value="">
-                        Seleccione responsable...
-                      </option>
-                      <option v-for="resp in responsables" :key="resp.id" :value="resp.id">
-                        {{ resp.nombre }}
+                      :class="{ 'border-red-500': errors.modalidad_responsable_nuevo }">
+                      <option value="">Seleccione...</option>
+                      <option v-for="moda in modalidades" :key="moda.id" :value="moda.modalidad">
+                        {{ moda.modalidad }}
                       </option>
                     </select>
+                    <p v-if="errors.modalidad_responsable_nuevo" class="mt-1 text-sm text-red-500">{{
+                      errors.modalidad_responsable_nuevo }}</p>
                   </div>
                 </div>
 
                 <!-- Observaciones -->
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-2">Observaciones</label>
-                  <textarea v-model="form.observacion" rows="4"
+                  <textarea v-model="observaciones" v-bind="observacionesProps" rows="4"
                     placeholder="Motivo del movimiento, estado del bien, etc."
                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 resize-none"></textarea>
                 </div>
@@ -200,10 +229,11 @@
               class="px-6 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-200 font-medium">
               Cancelar
             </button>
-            <button v-if="activeTab === 'registrar'" @click="submitMovimiento" type="button"
-              class="flex items-center gap-2 px-6 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200 font-medium shadow-sm">
-              <i class="pi pi-save"></i>
-              Guardar Movimiento
+            <button v-if="activeTab === 'registrar'" @click="submitMovimiento" type="button" :disabled="isSubmitting"
+              class="flex items-center gap-2 px-6 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200 font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+              <i v-if="isSubmitting" class="pi pi-spin pi-spinner"></i>
+              <i v-else class="pi pi-save"></i>
+              {{ isSubmitting ? 'Guardando...' : 'Guardar Movimiento' }}
             </button>
           </div>
         </div>
@@ -213,9 +243,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { movimientoService } from '../services/movimientoService.ts'
 import { useAuthStore } from "../stores/auth";
+import { useForm } from "vee-validate";
+import * as yup from "yup";
+import Swal from 'sweetalert2';
 
 const auth = useAuthStore();
 
@@ -224,19 +257,26 @@ interface Bien {
   id: number;
   codigo_patrimonio: string;
   descripcion: string;
-  ubicacion_id: number;
-  responsable_id: number;
+  ubicacion_id: number | null;
+  ubicacion_nombre?: string;
+  responsable_id: number | null;
+  responsable_nombre?: string;
   estado?: string;
 }
 
 interface Movimiento {
-  tipo: "Asignación" | "Traslado" | "Devolución" | "Baja";
+  id: number;
+  bien_id: number;
+  tipo: string;
   fecha: string;
-  desde: string;
-  hacia: string;
-  responsable: string;
-  estado: string;
-  observacion?: string;
+  ubicacion_actual?: string | null;
+  responsable?: string | null;
+  modalidad_responsable?: string | null;
+  inventariador_id?: number;
+  inventariador_nombre?: string;
+  documento_id?: number | null;
+  observaciones?: string;
+  estado_bien_actual?: string;
 }
 
 const props = defineProps<{
@@ -247,56 +287,90 @@ const props = defineProps<{
 const emit = defineEmits(["close", "save-movimiento"]);
 
 const activeTab = ref<"historial" | "registrar">("historial");
-
-// --- Mock Data (reemplazar con llamadas a API) ---
+const isLoading = ref(false);
 const movimientos = ref<Movimiento[]>([]);
-const ubicaciones = ref([
-  { id: 1, nombre: "Oficina Principal - Huánuco" },
-  { id: 2, nombre: "Almacén Central" },
-  { id: 3, nombre: "Sala de Reuniones" },
-  { id: 4, nombre: "Contabilidad" },
-]);
-const responsables = ref([
-  { id: 1, nombre: "Juan Pérez García" },
-  { id: 2, nombre: "María López Silva" },
-  { id: 3, nombre: "Carlos Torres Ramírez" },
-]);
 
-// Formulario para nuevo movimiento
-const form = reactive({
-  bien_id: props.bien?.id,
-  tipo: "",
-  fecha: new Date().toISOString().substr(0, 10),
-  ubicacion_id: "",
-  responsable_id: "",
-  observacion: "",
+const modalidades = [
+  { id: 1, modalidad: "CAP" },
+  { id: 2, modalidad: "CAS" },
+  { id: 3, modalidad: "OTROS" },
+];
+
+// Esquema de validación
+const schema = yup.object({
+  tipo: yup.string().required("El tipo de movimiento es requerido").oneOf(['Asignación', 'Traslado', 'Retiro', 'Baja', 'Cambio de Estado'], "Tipo de movimiento inválido"),
+  fecha: yup.string().required("La fecha es requerida"),
+  ubicacion_destino: yup.string().required("La nueva ubicación es requerida"),
+  responsable_nuevo: yup.string().required("El nuevo responsable es requerido"),
+  modalidad_responsable_nuevo: yup.string().required("La modalidad es requerida"),
+  observaciones: yup.string().nullable(),
 });
 
-const resetForm = () => {
-  form.tipo = "";
-  form.fecha = new Date().toISOString().substr(0, 10);
-  form.ubicacion_id = "";
-  form.responsable_id = "";
-  form.observacion = "";
-};
+// Configuración del formulario
+const { handleSubmit, resetForm, errors, defineField } = useForm({
+  validationSchema: schema,
+  initialValues: {
+    tipo: "",
+    fecha: new Date().toISOString().substr(0, 10),
+    ubicacion_destino: "",
+    responsable_nuevo: "",
+    modalidad_responsable_nuevo: "",
+    observaciones: "",
+  },
+});
+
+const [tipo, tipoProps] = defineField("tipo");
+const [fecha, fechaProps] = defineField("fecha");
+const [ubicacion_destino, ubicacion_destinoProps] = defineField("ubicacion_destino");
+const [responsable_nuevo, responsable_nuevoProps] = defineField("responsable_nuevo");
+const [modalidad_responsable_nuevo, modalidad_responsable_nuevoProps] = defineField("modalidad_responsable_nuevo");
+const [observaciones, observacionesProps] = defineField("observaciones");
+
 
 const fetchMovimientos = async (bienId: number) => {
   console.log(`Fetching movimientos for bien ID: ${bienId}`);
-  // Llamar a getById
-  movimientoService.getById(bienId).then((response) => {
-    const res = response as any;
-    movimientos.value = res.data;
-  });
+  isLoading.value = true;
+  movimientos.value = []; // Clear previous data
 
+  try {
+    const response = await movimientoService.getById(bienId);
+    const res = response as any;
+    if (res.movimientos) {
+      movimientos.value = res.movimientos;
+    } else if (Array.isArray(res)) {
+      movimientos.value = res;
+    } else if (res.data && Array.isArray(res.data)) {
+      movimientos.value = res.data;
+    } else {
+      movimientos.value = [];
+    }
+  } catch (error) {
+    console.error("Error fetching movimientos:", error);
+    movimientos.value = [];
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 watch(
   () => props.isOpen,
   (newVal) => {
     if (newVal && props.bien) {
-      form.bien_id = props.bien.id;
       fetchMovimientos(props.bien.id);
       activeTab.value = "historial"; // Reset to history tab on open
+      resetForm({
+        values: {
+          tipo: "",
+          fecha: new Date().toISOString().substr(0, 10),
+          ubicacion_destino: "",
+          responsable_nuevo: "",
+          modalidad_responsable_nuevo: "",
+          observaciones: "",
+        }
+      });
+    } else {
+      // Clear data when modal closes
+      movimientos.value = [];
     }
   }
 );
@@ -309,35 +383,62 @@ onMounted(() => {
 
 const closeModal = () => {
   emit("close");
+  resetForm();
+  movimientos.value = []; // Clear data on close
 };
 
-const submitMovimiento = () => {
+const isSubmitting = ref(false);
+
+const submitMovimiento = handleSubmit(async (values) => {
   if (!props.bien) {
     console.error("No bien selected");
     return;
   }
 
+  isSubmitting.value = true;
+
   const movimientoData = {
     bien_id: props.bien.id,
-    tipo: form.tipo,
-    fecha: form.fecha,
-    ubicacion_origen: props.bien.ubicacion_id,
-    ubicacion_destino: form.ubicacion_id,
-    responsable_anterior: props.bien.responsable_id,
-    responsable_nuevo: form.responsable_id,
+    tipo: values.tipo,
+    fecha: values.fecha,
+    ubicacion_origen: props.bien.ubicacion_nombre || "",
+    ubicacion_destino: values.ubicacion_destino,
+    responsable_anterior: props.bien.responsable_nombre || "",
+    responsable_nuevo: values.responsable_nuevo,
+    modalidad_responsable_anterior: "NO REGISTRADO", // Valor por defecto ya que no viene en props.bien
+    modalidad_responsable_nuevo: values.modalidad_responsable_nuevo,
     inventariador_id: auth.user?.id,
-    observaciones: form.observacion,
+    observaciones: values.observaciones,
   };
 
-  movimientoService.create(movimientoData).then((response) => {
-    console.log(movimientoData)
+  try {
+    const response = await movimientoService.create(movimientoData);
+    console.log(movimientoData);
     console.log("Movimiento guardado exitosamente:", response);
+
+    await Swal.fire({
+      icon: 'success',
+      title: '¡Movimiento Registrado!',
+      text: 'El movimiento se ha guardado correctamente.',
+      timer: 2000,
+      showConfirmButton: false
+    });
+
     emit("save-movimiento", response);
     resetForm();
     activeTab.value = "historial";
-    if (props.bien) fetchMovimientos(props.bien.id);
-  });
-};
+    if (props.bien) await fetchMovimientos(props.bien.id);
+  } catch (error) {
+    console.error("Error al guardar movimiento:", error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudo guardar el movimiento. Intente nuevamente.',
+    });
+  } finally {
+    isSubmitting.value = false;
+  }
+});
 
 // --- Helpers para UI ---
 const getIconForMovement = (tipo: string) => {
@@ -347,24 +448,24 @@ const getIconForMovement = (tipo: string) => {
     case "traslado":
       return "pi pi-arrow-right-arrow-left text-yellow-500";
     case "devolución":
+    case "retiro":
       return "pi pi-undo text-green-500";
     case "baja":
       return "pi pi-trash text-red-500";
+    case "cambio de estado":
+      return "pi pi-refresh text-orange-500";
     default:
       return "pi pi-info-circle text-gray-500";
   }
 };
 
-const getStatusClass = (estado: string) => {
-  switch (estado.toLowerCase()) {
-    case "completado":
-      return "bg-green-100 text-green-800";
-    case "en proceso":
-      return "bg-yellow-100 text-yellow-800";
-    case "cancelado":
-      return "bg-red-100 text-red-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
+const formatDate = (dateString: string) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat("es-PE", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(date);
 };
 </script>

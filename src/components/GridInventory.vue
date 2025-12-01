@@ -11,40 +11,12 @@
         </p>
       </div>
 
-      <!-- Tarjeta de estadísticas -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500">
-          <p class="text-sm text-gray-600 mb-1">Total de Bienes</p>
-          <p class="text-2xl font-bold text-gray-900">{{ bienes.length }}</p>
-        </div>
-        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500">
-          <p class="text-sm text-gray-600 mb-1">Estado Bueno</p>
-          <p class="text-2xl font-bold text-green-600">
-            {{ estadisticas.buenos }}
-          </p>
-        </div>
-        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-yellow-500">
-          <p class="text-sm text-gray-600 mb-1">Estado Regular</p>
-          <p class="text-2xl font-bold text-yellow-600">
-            {{ estadisticas.regulares }}
-          </p>
-        </div>
-        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-red-500">
-          <p class="text-sm text-gray-600 mb-1">Estado Malo</p>
-          <p class="text-2xl font-bold text-red-600">
-            {{ estadisticas.malos }}
-          </p>
-        </div>
-      </div>
-
       <!-- Acciones principales -->
       <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
         <div class="flex flex-col sm:flex-row gap-3">
-          <button @click="openModalBien = true"
+          <button @click="abrirModalAgregar"
             class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg transition-colors duration-200 font-medium shadow-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
+            <i class="pi pi-plus"></i>
             Agregar Bien
           </button>
           <button @click="openModalBarCode = true"
@@ -54,10 +26,7 @@
           </button>
           <button @click="exportarDatos"
             class="flex items-center justify-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-5 py-2.5 rounded-lg transition-colors duration-200 font-medium shadow-sm ml-auto">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+            <i class="pi pi-download"></i>
             Exportar
           </button>
         </div>
@@ -69,31 +38,19 @@
           <!-- Buscador -->
           <div class="flex-1">
             <div class="relative">
-              <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none"
-                stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+              <i class="pi pi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
               <input v-model="searchQuery" type="text" placeholder="Buscar por descripción, marca, modelo o código..."
                 class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
               <button v-if="searchQuery" @click="searchQuery = ''"
                 class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <i class="pi pi-times"></i>
               </button>
             </div>
           </div>
 
           <!-- Filtros -->
           <div class="flex flex-col sm:flex-row gap-3">
-            <select v-model="selectedCategoria"
-              class="border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-              <option value="">📦 Todas las categorías</option>
-              <option v-for="cat in categorias" :key="cat.id" :value="cat.nombre">
-                {{ cat.nombre }}
-              </option>
-            </select>
+
 
             <select v-model="selectedEstado"
               class="border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
@@ -106,8 +63,8 @@
             <select v-model="selectedUbicacion"
               class="border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
               <option value="">📍 Todas las ubicaciones</option>
-              <option v-for="ubic in ubicaciones" :key="ubic.id" :value="ubic.nombre">
-                {{ ubic.nombre }}
+              <option v-for="ubic in ubicaciones" :key="ubic" :value="ubic">
+                {{ ubic }}
               </option>
             </select>
 
@@ -136,26 +93,11 @@
                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   Código Interno
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Categoría
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-1/3">
                   Denominación
                 </th>
                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Marca
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Modelo
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   Tipo
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Color
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Serie / Dimensiones
                 </th>
                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   Estado
@@ -163,7 +105,6 @@
                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   Responsable
                 </th>
-
                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   Acciones
                 </th>
@@ -182,141 +123,71 @@
                     {{ bien.codigo_interno }}
                   </div>
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap">
+                <td class="px-4 py-3">
+                  <div class="max-w-xs">
+                    <div class="text-sm font-medium text-gray-900 truncate" :title="bien.detalle_bien">
+                      {{ bien.detalle_bien }}
+                    </div>
+                    <div class="text-xs text-gray-500 truncate" :title="bien.descripcion">
+                      {{ bien.descripcion }}
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
                   <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {{ bien.categoria_nombre }}
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    {{ bien.tipo_origen }}
                   </span>
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap">
-                  <!--<div class="text-sm text-gray-900">{{ bien.marca }}</div>
-                  <div class="text-xs text-gray-500">{{ bien.modelo }}</div>-->
-                  <div class="text-sm text-gray-900">
-                    {{ bien.detalle_bien }}
-                  </div>
-                  <div class="text-xs text-gray-500">
-                    {{ bien.descripcion }}
-                  </div>
-                </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                  <!--{{
-                    bien.ubicacion_id === 1
-                      ? "Oficina Principal"
-                      : bien.ubicacion_id === 2
-                      ? "Contabilidad"
-                      : bien.ubicacion_id === 3
-                      ? "Administración"
-                      : bien.ubicacion_id === 4
-                      ? "Sala de reuniones"
-                      : "Otra ubicación"
-                }}-->
-                  {{ bien.marca }}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap">
-                  <!--<span
-                    :class="{
-                      'bg-green-100 text-green-800': bien.estado_id === 1,
-                      'bg-yellow-100 text-yellow-800': bien.estado_id === 2,
-                      'bg-red-100 text-red-800': bien.estado_id === 3,
-                    }"
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  >
-                    <span
-                      :class="{
-                        'bg-green-500': bien.estado_id === 1,
-                        'bg-yellow-500': bien.estado_id === 2,
-                        'bg-red-500': bien.estado_id === 3,
-                      }"
-                      class="w-2 h-2 rounded-full mr-1.5"
-                    ></span>
-                    {{
-                      bien.estado_id === 1
-                        ? "Bueno"
-                        : bien.estado_id === 2
-                        ? "Regular"
-                        : "Malo"
-                    }}
-                  </span>-->
-                  {{ bien.modelo }}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                  <!--{{
-                    bien.responsable_id === 1
-                      ? "Juan Pérez"
-                      : bien.responsable_id === 2
-                      ? "María Gómez"
-                      : bien.responsable_id === 3
-                      ? "Carlos Ruiz"
-                      : "Sin asignar"
-                  }}-->
-                  {{ bien.tipo_origen }}
-                </td>
-
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                  {{ bien.color }}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                  {{ bien.dimension || bien.numero_serie }}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                  <span :class="obtenerEstilosEstado(bien.estado_id).contenedor"
+                  <span :class="obtenerEstilosEstado(bien.estado).contenedor"
                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                    <span :class="obtenerEstilosEstado(bien.estado_id).punto"
-                      class="w-2 h-2 rounded-full mr-1.5"></span>
-
+                    <span :class="obtenerEstilosEstado(bien.estado).punto" class="w-2 h-2 rounded-full mr-1.5"></span>
                     {{ bien.estado_nombre }}
                   </span>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                  {{ bien.responsable_nombre }}
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+                      {{ bien.responsable_nombre?.charAt(0) || '?' }}
+                    </div>
+                    <span class="truncate max-w-[150px]" :title="bien.responsable_nombre">
+                      {{ bien.responsable_nombre }}
+                    </span>
+                  </div>
                 </td>
-
                 <td class="px-4 py-3 whitespace-nowrap text-sm">
                   <div class="flex gap-2">
                     <button @click="verDetalles(bien)"
-                      class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors duration-200"
+                      class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-colors duration-200"
                       title="Ver detalles">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
+                      <i class="pi pi-eye text-sm"></i>
                     </button>
                     <button @click="editarBien(bien)"
-                      class="inline-flex items-center px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white text-xs font-medium rounded transition-colors duration-200"
+                      class="inline-flex items-center justify-center w-8 h-8 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-lg transition-colors duration-200"
                       title="Editar">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
+                      <i class="pi pi-pencil text-sm"></i>
                     </button>
                     <button @click="verMovimientos(bien)"
-                      class="inline-flex items-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded transition-colors duration-200"
+                      class="inline-flex items-center justify-center w-8 h-8 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition-colors duration-200"
                       title="Ver movimientos">
-                      <i class="pi pi-truck"></i>
+                      <i class="pi pi-history text-sm"></i>
                     </button>
                   </div>
                 </td>
               </tr>
 
               <tr v-if="cargando">
-                <td colspan="8" class="px-4 py-3">
-                  <div class="animate-pulse space-y-3">
-                    <div v-for="i in 3" :key="i" class="flex items-center gap-4">
-                      <div class="h-10 bg-gray-200 rounded flex-1"></div>
-                      <div class="h-10 bg-gray-200 rounded flex-1"></div>
-                      <div class="h-10 bg-gray-200 rounded flex-1"></div>
-                      <div class="h-10 bg-gray-200 rounded flex-1"></div>
-                      <div class="h-10 bg-gray-200 rounded flex-1"></div>
-                      <div class="h-10 bg-gray-200 rounded flex-1"></div>
-                      <div class="h-10 bg-gray-200 rounded flex-1"></div>
-                      <div class="h-10 bg-gray-200 rounded flex-1"></div>
-                      <div class="h-10 bg-gray-200 rounded flex-1"></div>
-                      <div class="h-10 bg-gray-200 rounded flex-1"></div>
-                      <div class="h-10 bg-gray-200 rounded flex-1"></div>
-                      <div class="h-10 bg-gray-200 rounded w-24"></div>
+                <td colspan="8" class="px-4 py-8">
+                  <div class="flex flex-col items-center justify-center space-y-4">
+                    <div class="relative w-12 h-12">
+                      <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-200 rounded-full"></div>
+                      <div
+                        class="absolute top-0 left-0 w-full h-full border-4 border-blue-600 rounded-full border-t-transparent animate-spin">
+                      </div>
                     </div>
+                    <p class="text-sm text-gray-500 font-medium animate-pulse">Cargando inventario...</p>
                   </div>
                 </td>
               </tr>
@@ -324,10 +195,7 @@
               <tr v-if="paginatedData.length === 0 && !cargando">
                 <td colspan="8" class="px-4 py-12 text-center">
                   <div class="flex flex-col items-center justify-center text-gray-500">
-                    <svg class="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                    </svg>
+                    <i class="pi pi-search text-4xl mb-4 text-gray-300"></i>
                     <p class="text-lg font-medium mb-1">
                       No se encontraron bienes
                     </p>
@@ -359,7 +227,7 @@
             </div>
 
             <div class="flex items-center gap-2">
-              <button @click="currentPage = 1" :disabled="currentPage === 1"
+              <button @click="fetchBienes(1)" :disabled="currentPage === 1"
                 class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
                 Primera
               </button>
@@ -383,7 +251,7 @@
                 class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
                 Siguiente
               </button>
-              <button @click="currentPage = totalPages" :disabled="currentPage === totalPages"
+              <button @click="fetchBienes(totalPages)" :disabled="currentPage === totalPages"
                 class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
                 Última
               </button>
@@ -394,10 +262,11 @@
     </div>
 
     <!-- Modales -->
-    <modal-bien :isOpen="openModalBien" @close="openModalBien = false" @save="addBien" />
+    <modal-bien :isOpen="openModalBien" :bienToEdit="bienParaEditar" @close="cerrarModalBien" @save="onBienSaved" />
     <modal-detalle-bien v-if="bienSeleccionado" :isOpen="openModalDetalle" :bien="bienSeleccionado"
       @close="openModalDetalle = false" />
-    <bar-code-modal :isOpen="openModalBarCode" @close="openModalBarCode = false" @search="handleSearch" />
+    <bar-code-modal :isOpen="openModalBarCode" @close="openModalBarCode = false" @search="handleSearch"
+      @open-movimientos="verMovimientos" />
 
     <!-- Add this with your other modals -->
     <modal-movimientos :isOpen="openModalMovimientos" :bien="bienParaMovimientos" @close="openModalMovimientos = false"
@@ -428,38 +297,37 @@ interface Bien {
   color?: string;
   dimension?: string;
   numero_serie?: string;
-  estado_id: number;
+  estado: string;
   estado_nombre: string;
   responsable_nombre: string;
-  responsable_id: number;
-  estado?: string; // For statistics
-  ubicacion: string;
-  ubicacion_id: number;
+  responsable_id: number | null;
+  ubicacion_id: number | null;
   ubicacion_nombre: string;
   serie?: string; // For export
   categoria?: string; // For export
 }
 
 const estadoEstilos = {
-  1: {
+  "BUENO": {
     contenedor: "bg-green-100 text-green-800",
     punto: "bg-green-500",
   },
-  2: {
+  "REGULAR": {
     contenedor: "bg-yellow-100 text-yellow-800",
     punto: "bg-yellow-500",
   },
-  3: {
+  "MALO": {
     contenedor: "bg-red-100 text-red-800",
     punto: "bg-red-500",
   },
 };
 
-// Función para obtener el estilo de forma segura (con un fallback por defecto)
-const obtenerEstilosEstado = (id: number) => {
+// Función para obtener el estilo de forma segura
+const obtenerEstilosEstado = (estado: string) => {
+  const estadoUpper = estado?.toUpperCase() || "";
   return (
-    (estadoEstilos as any)[id] || {
-      contenedor: "bg-gray-100 text-gray-800", // Estilo por defecto si el ID no existe
+    (estadoEstilos as any)[estadoUpper] || {
+      contenedor: "bg-gray-100 text-gray-800", // Estilo por defecto
       punto: "bg-gray-500",
     }
   );
@@ -477,8 +345,20 @@ const handleSaveMovimiento = () => {
   console.log("Guardando movimiento para el bien:", bienParaMovimientos.value);
 };
 
-const addBien = () => {
+const onBienSaved = () => {
   recargarBienes();
+  //fetchStats();
+  cerrarModalBien();
+};
+
+const abrirModalAgregar = () => {
+  bienParaEditar.value = undefined;
+  openModalBien.value = true;
+};
+
+const cerrarModalBien = () => {
+  openModalBien.value = false;
+  bienParaEditar.value = undefined;
 };
 
 const openModalDetalle = ref(false);
@@ -507,6 +387,7 @@ const verDetalles = (bien: Bien) => {
 };
 
 const openModalBien = ref(false);
+const bienParaEditar = ref<Bien | undefined>(undefined);
 const openModalBarCode = ref(false);
 
 // Datos
@@ -521,12 +402,7 @@ const cargando = ref(true);
 const error = ref<string | null>(null);
 
 // Filtros - Datos estáticos por ahora (puedes cargarlos desde el backend después)
-const categorias = ref([
-  { id: 1, nombre: "Monitores" },
-  { id: 2, nombre: "Computadoras" },
-  { id: 3, nombre: "Impresoras" },
-  { id: 4, nombre: "Proyectores" },
-]);
+
 
 const estados = ref([
   { id: 1, nombre: "Bueno" },
@@ -534,18 +410,30 @@ const estados = ref([
   { id: 3, nombre: "Malo" },
 ]);
 
-const ubicaciones = ref([
-  { id: 1, nombre: "Oficina Principal" },
-  { id: 2, nombre: "Contabilidad" },
-  { id: 3, nombre: "Administración" },
-  { id: 4, nombre: "Sala de reuniones" },
-]);
+const ubicaciones = ref<string[]>([]);
+
+const fetchUbicaciones = async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/reportes/options`);
+    if (response.ok) {
+      const data = await response.json();
+      ubicaciones.value = data.areas || [];
+    }
+  } catch (error) {
+    console.error('Error fetching ubicaciones:', error);
+  }
+};
 
 // Variables reactivas
 const searchQuery = ref("");
-const selectedCategoria = ref("");
 const selectedEstado = ref("");
 const selectedUbicacion = ref("");
+
+// Watch filters to reset pagination
+// Watch filters to reset pagination
+watch([searchQuery, selectedEstado, selectedUbicacion], () => {
+  fetchBienes(1);
+});
 
 // Paginación
 const currentPage = ref(1);
@@ -559,7 +447,6 @@ const fetchBienes = async (page = 1) => {
       page: page,
       per_page: pagination.value.per_page,
       search: searchQuery.value,
-      categoria: selectedCategoria.value,
       estado: selectedEstado.value,
       ubicacion: selectedUbicacion.value
     };
@@ -568,9 +455,12 @@ const fetchBienes = async (page = 1) => {
     const res = response as any;
 
     if (res.success) {
-      const data = res.data;
-      bienes.value = data.data || [];
-      pagination.value = data.pagination;
+      // La respuesta ahora viene en res.data.data (array) y res.data.pagination (objeto)
+      const responseData = res.data;
+      bienes.value = responseData.data || [];
+      if (responseData.pagination) {
+        pagination.value = responseData.pagination;
+      }
       currentPage.value = pagination.value.page;
     } else {
       error.value = res.message || "Error al cargar los datos.";
@@ -583,25 +473,29 @@ const fetchBienes = async (page = 1) => {
   }
 };
 
+// Estadísticas
+/*const estadisticas = ref({
+  total: 0,
+  buenos: 0,
+  regulares: 0,
+  malos: 0
+});*/
+
+/*const fetchStats = async () => {
+  try {
+    const res = await bienService.getStats() as any;
+    if (res.success) {
+      estadisticas.value = res.data;
+    }
+  } catch (e) {
+    console.error("Error cargando estadísticas:", e);
+  }
+};*/
+
 onMounted(() => {
   fetchBienes(1);
-});
-
-// Watch filters to reset pagination
-watch([searchQuery, selectedCategoria, selectedEstado, selectedUbicacion], () => {
-  fetchBienes(1);
-});
-
-
-
-// Computed
-const estadisticas = computed(() => {
-  return {
-    buenos: bienes.value.filter((b) => b.estado === "Bueno").length,
-    regulares: bienes.value.filter((b) => b.estado === "Regular").length,
-    malos: bienes.value.filter((b) => b.estado === "Malo").length,
-    total: bienes.value.length,
-  };
+  //fetchStats();
+  fetchUbicaciones();
 });
 
 
@@ -613,7 +507,6 @@ const paginatedData = computed(() => bienes.value);
 const hasFiltrosActivos = computed(() => {
   return (
     searchQuery.value !== "" ||
-    selectedCategoria.value !== "" ||
     selectedEstado.value !== "" ||
     selectedUbicacion.value !== ""
   );
@@ -650,16 +543,14 @@ const prevPage = () => {
 
 const limpiarFiltros = () => {
   searchQuery.value = "";
-  selectedCategoria.value = "";
   selectedEstado.value = "";
   selectedUbicacion.value = "";
   currentPage.value = 1;
 };
 
 const editarBien = (bien: Bien) => {
-  // Implementar lógica de edición
-  alert(`Editar bien ${bien.codigo_patrimonio}`);
-  // Podrías abrir un modal con los datos del bien para editar
+  bienParaEditar.value = bien;
+  openModalBien.value = true;
 };
 
 
@@ -683,7 +574,7 @@ const exportarDatos = () => {
       b.modelo || "",
       b.serie || "",
       b.estado || "",
-      b.ubicacion || "",
+      b.ubicacion_nombre || "",
     ]),
   ]
     .map((row) => row.join(","))

@@ -1,7 +1,7 @@
 <template>
   <transition name="fade">
     <div v-if="isOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-md p-4"
       @click.self="closeModal">
       <div
         class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden transform transition-all">
@@ -91,21 +91,13 @@
                     Estado del Bien
                   </p>
                   <div>
-                    <span :class="{
-                      'bg-green-100 text-green-800 border-green-200':
-                        bien.estado_nombre === 'Bueno',
-                      'bg-yellow-100 text-yellow-800 border-yellow-200':
-                        bien.estado_nombre === 'Regular',
-                      'bg-red-100 text-red-800 border-red-200':
-                        bien.estado_nombre === 'Malo',
-                    }" class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-semibold border">
-                      <span :class="{
-                        'bg-green-500': bien.estado_nombre === 'Bueno',
-                        'bg-yellow-500': bien.estado_nombre === 'Regular',
-                        'bg-red-500': bien.estado_nombre === 'Malo',
-                      }" class="w-2 h-2 rounded-full mr-2"></span>
-                      {{ bien.estado_nombre }}
-                    </span>
+                    <div>
+                      <span :class="getEstadoStyles(bien.estado)"
+                        class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold border shadow-sm">
+                        <span :class="getEstadoDot(bien.estado)" class="w-2 h-2 rounded-full mr-2 animate-pulse"></span>
+                        {{ bien.estado || bien.estado_nombre }}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div class="md:col-span-2">
@@ -206,26 +198,14 @@
               <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
-                Observación
+                Observaciones
               </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex items-center gap-3 bg-gray-50 rounded-lg p-4">
-                  <div class="bg-blue-100 p-2 rounded-full">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="text-xs text-gray-600 font-medium">Responsable</p>
-                    <p class="text-sm font-semibold text-gray-900">
-                      {{ bien.responsable_nombre }}
-                    </p>
-                  </div>
-                </div>
-
+              <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <p class="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
+                  {{ bien.observacion || 'No hay observaciones registradas para este bien.' }}
+                </p>
               </div>
             </div>
           </div>
@@ -271,12 +251,15 @@ interface Bien {
   categoria_nombre: string;
   marca: string;
   modelo: string;
-  ubicacion: string;
   estado?: string;
   detalle_bien: string;
   estado_nombre: string;
   responsable_nombre: string;
   ubicacion_nombre: string;
+  observacion?: string;
+  color?: string;
+  dimension?: string;
+  serie?: string;
 }
 
 
@@ -317,6 +300,24 @@ const closeModal = () => {
 
 const imprimirDetalles = () => {
   window.print();
+};
+
+const getEstadoStyles = (estado: string | undefined) => {
+  const styles: Record<string, string> = {
+    'BUENO': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+    'REGULAR': 'bg-amber-100 text-amber-800 border-amber-200',
+    'MALO': 'bg-rose-100 text-rose-800 border-rose-200'
+  };
+  return styles[estado?.toUpperCase() || ''] || 'bg-gray-100 text-gray-800 border-gray-200';
+};
+
+const getEstadoDot = (estado: string | undefined) => {
+  const dots: Record<string, string> = {
+    'BUENO': 'bg-emerald-500',
+    'REGULAR': 'bg-amber-500',
+    'MALO': 'bg-rose-500'
+  };
+  return dots[estado?.toUpperCase() || ''] || 'bg-gray-500';
 };
 </script>
 
