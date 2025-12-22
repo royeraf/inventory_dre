@@ -232,6 +232,11 @@ const handleSearch = async () => {
     error.value = "Error al buscar el bien.";
   } finally {
     loading.value = false;
+    // Limpiar el código y volver a enfocar el input para permitir escanear el siguiente
+    barcode.value = "";
+    await nextTick();
+    const input = document.getElementById('barcode');
+    if (input) input.focus();
   }
 };
 
