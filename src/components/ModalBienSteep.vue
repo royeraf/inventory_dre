@@ -3,8 +3,7 @@
   <Transition enter-active-class="transition-opacity duration-300 ease-out" enter-from-class="opacity-0"
     enter-to-class="opacity-100" leave-active-class="transition-opacity duration-200 ease-in"
     leave-from-class="opacity-100" leave-to-class="opacity-0">
-    <div v-if="isOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-md p-4"
+    <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-md p-4"
       @click.self="cerrarModal">
       <!-- Modal con animación -->
       <Transition enter-active-class="transition-all duration-300 ease-out" enter-from-class="opacity-0 scale-95"
@@ -394,8 +393,9 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from "vue";
+import { reactive, ref, computed, onMounted } from "vue";
 import { bienService } from "../services/bienService";
+import { responsableService, type Responsable } from "../services/responsableService";
 import { useAuthStore } from "../stores/auth";
 
 const auth = useAuthStore();
@@ -442,12 +442,30 @@ const estados = [
   { id: 6, nombre: "En Reparación" },
 ];
 
-const responsables = [
-  { id: 1, nombre: "Juan Pérez García" },
-  { id: 2, nombre: "María López Silva" },
-  { id: 3, nombre: "Carlos Torres Ramírez" },
-  { id: 4, nombre: "Ana Gómez Vega" },
-];
+// Responsables cargados dinámicamente desde la API
+const responsables = ref<Responsable[]>([]);
+const loadingResponsables = ref(false);
+
+// Cargar responsables al montar el componente
+const cargarResponsables = async () => {
+  loadingResponsables.value = true;
+  try {
+    const response = await responsableService.getAll();
+    if (response.success) {
+      responsables.value = response.data;
+    } else {
+      console.error('Error al cargar responsables:', response.message);
+    }
+  } catch (error) {
+    console.error('Error al cargar responsables:', error);
+  } finally {
+    loadingResponsables.value = false;
+  }
+};
+
+onMounted(() => {
+  cargarResponsables();
+});
 
 // Formulario reactivo
 // Formulario reactivo

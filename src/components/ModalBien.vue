@@ -439,10 +439,8 @@
                       Responsable
                       <span class="text-red-500">*</span>
                     </label>
-                    <input v-model="responsable" v-bind="responsableProps" type="text"
-                      placeholder="Ingrese el responsable" :disabled="isEditing"
-                      class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-100 disabled:text-gray-500"
-                      :class="{ 'border-red-500': errors.responsable }" />
+                    <SearchableSelect v-model="responsable" :items="responsables" placeholder="Seleccione responsable"
+                      :disabled="isEditing" :is-loading="isLoadingResponsables" :has-error="!!errors.responsable" />
                     <p v-if="errors.responsable" class="text-red-500 text-xs mt-1">
                       {{ errors.responsable }}
                     </p>
@@ -597,6 +595,8 @@ import { computed, ref, watch, onMounted } from "vue";
 import { bienService } from "../services/bienService";
 import { movimientoService } from "../services/movimientoService";
 import { categoriaService, type Categoria } from "../services/categoriaService";
+import { responsableService, type Responsable } from "../services/responsableService";
+import SearchableSelect from "./SearchableSelect.vue";
 import { useAuthStore } from "../stores/auth";
 import { useForm } from "vee-validate";
 import * as yup from "yup";
@@ -639,7 +639,29 @@ const fetchCategorias = async () => {
 // Cargar categorías al montar el componente
 onMounted(() => {
   fetchCategorias();
+  fetchResponsables();
 });
+
+// Datos dinámicos de responsables desde API
+const responsables = ref<Responsable[]>([]);
+const isLoadingResponsables = ref(false);
+
+// Función para cargar responsables desde el backend
+const fetchResponsables = async () => {
+  isLoadingResponsables.value = true;
+  try {
+    const response = await responsableService.getAll();
+    if (response.success && response.data) {
+      responsables.value = response.data;
+    } else {
+      console.error("Error cargando responsables:", response.message);
+    }
+  } catch (error) {
+    console.error("Error cargando responsables:", error);
+  } finally {
+    isLoadingResponsables.value = false;
+  }
+};
 
 const estados = [
   { id: 1, nombre: "Bueno" },

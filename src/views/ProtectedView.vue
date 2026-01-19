@@ -141,21 +141,7 @@
           <span class="font-medium">Ajustes</span>
         </router-link>
 
-        <!-- Divider -->
-        <div class="pt-4 pb-2">
-          <div class="h-px bg-slate-700"></div>
-        </div>
 
-        <!-- Stats o Info adicional -->
-        <div class="px-4 py-3 bg-slate-800/50 rounded-lg border border-slate-700">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs text-slate-400">Bienes registrados</span>
-            <span class="text-sm font-bold text-white">{{ totalBienes }}</span>
-          </div>
-          <div class="w-full bg-slate-700 rounded-full h-1.5">
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-1.5 rounded-full" style="width: 75%"></div>
-          </div>
-        </div>
       </nav>
 
       <!-- Footer con botón de logout -->
@@ -242,9 +228,8 @@
 
 <script setup lang="ts">
 import { useAuthStore } from "../stores/auth";
-import { computed, ref, onMounted } from "vue";
+import { computed, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { bienService } from "../services/bienService";
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -337,22 +322,7 @@ const currentPageSubtitle = computed(() => {
   return "DRE Huánuco";
 });
 
-const totalBienes = ref(0);
 
-const fetchStats = async () => {
-  try {
-    const res: any = await bienService.getStats();
-    if (res.success) {
-      totalBienes.value = res.data.total || 0;
-    }
-  } catch (error) {
-    console.error('Error fetching stats:', error);
-  }
-};
-
-onMounted(() => {
-  fetchStats();
-});
 </script>
 
 <style scoped>

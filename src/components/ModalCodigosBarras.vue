@@ -58,78 +58,134 @@
                         </div>
                     </div>
 
-                    <!-- Selected Count -->
-                    <div v-if="selectedBienes.length > 0"
-                        class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex justify-between items-center">
-                        <span class="text-sm font-medium text-blue-800">
-                            {{ selectedBienes.length }} bien(es) seleccionado(s)
-                        </span>
-                        <button @click="selectedBienes = []"
-                            class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-                            Limpiar selección
-                        </button>
-                    </div>
-
                     <!-- Loading -->
                     <div v-if="loading" class="text-center py-12">
                         <i class="pi pi-spin pi-spinner text-4xl text-blue-600"></i>
                         <p class="text-gray-600 mt-4">Cargando bienes...</p>
                     </div>
 
-                    <!-- Bienes Table -->
-                    <div v-else class="border border-gray-200 rounded-lg overflow-hidden">
-                        <div class="overflow-x-auto max-h-96">
-                            <table class="w-full">
-                                <thead class="bg-gray-50 sticky top-0">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left">
-                                            <input type="checkbox" @change="toggleSelectAll" :checked="isAllSelected"
-                                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                                        </th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                                            Código</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                                            Detalle</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                                            Oficina</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                                            Tipo</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200">
-                                    <tr v-for="bien in bienes" :key="bien.codigo_completo" class="hover:bg-gray-50">
-                                        <td class="px-4 py-3">
-                                            <input type="checkbox" :value="bien" v-model="selectedBienes"
-                                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <span class="font-mono text-sm font-medium text-gray-900">{{
-                                                bien.codigo_completo }}</span>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <div class="text-sm text-gray-900 max-w-xs truncate"
-                                                :title="bien.detalle_bien">
+                    <!-- Dual List Picker -->
+                    <div v-else class="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-4">
+                        <!-- Lista de Bienes Disponibles -->
+                        <div class="border border-gray-200 rounded-lg overflow-hidden flex flex-col">
+                            <div class="bg-gray-100 px-4 py-3 border-b border-gray-200">
+                                <h4 class="font-semibold text-gray-700 flex items-center gap-2">
+                                    <i class="pi pi-list text-blue-600"></i>
+                                    Bienes Disponibles
+                                    <span class="ml-auto text-sm font-normal text-gray-500">
+                                        {{ availableBienes.length }} disponible(s)
+                                    </span>
+                                </h4>
+                            </div>
+                            <div class="p-2 border-b border-gray-200 bg-gray-50">
+                                <input type="text" v-model="availableSearch" placeholder="Filtrar disponibles..."
+                                    class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+                            </div>
+                            <div class="flex-1 overflow-y-auto max-h-72 min-h-[200px]">
+                                <div v-for="bien in filteredAvailableBienes" :key="bien.codigo_completo"
+                                    @click="toggleAvailableSelection(bien)" :class="['px-3 py-2 cursor-pointer border-b border-gray-100 hover:bg-blue-50 transition-colors',
+                                        tempSelectedAvailable.includes(bien) ? 'bg-blue-100' : '']">
+                                    <div class="flex items-start gap-2">
+                                        <input type="checkbox" :checked="tempSelectedAvailable.includes(bien)"
+                                            @click.stop="toggleAvailableSelection(bien)"
+                                            class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-sm font-mono font-medium text-gray-900">
+                                                {{ bien.codigo_completo }}
+                                            </div>
+                                            <div class="text-xs text-gray-500 truncate" :title="bien.detalle_bien">
                                                 {{ bien.detalle_bien }}
                                             </div>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <span class="text-sm text-gray-700">{{ bien.oficina }}</span>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <span
-                                                :class="bien.tipo_registro === 'SIGA' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'"
-                                                class="px-2 py-1 rounded-full text-xs font-medium">
-                                                {{ bien.tipo_registro }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    <tr v-if="bienes.length === 0">
-                                        <td colspan="5" class="px-4 py-12 text-center text-gray-500">
-                                            No se encontraron bienes
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <span class="text-xs text-gray-400">{{ bien.oficina }}</span>
+                                                <span
+                                                    :class="bien.tipo_registro === 'SIGA' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'"
+                                                    class="px-1.5 py-0.5 rounded text-xs font-medium">
+                                                    {{ bien.tipo_registro }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-if="filteredAvailableBienes.length === 0"
+                                    class="px-4 py-8 text-center text-gray-400">
+                                    <i class="pi pi-inbox text-3xl mb-2"></i>
+                                    <p class="text-sm">No hay bienes disponibles</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="flex lg:flex-col items-center justify-center gap-2 py-4">
+                            <button @click="addSelected" :disabled="tempSelectedAvailable.length === 0"
+                                class="w-12 h-10 lg:w-10 lg:h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                                title="Agregar seleccionados">
+                                <i class="pi pi-angle-right lg:pi-angle-right"></i>
+                            </button>
+                            <button @click="addAll" :disabled="availableBienes.length === 0"
+                                class="w-12 h-10 lg:w-10 lg:h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                                title="Agregar todos">
+                                <i class="pi pi-angle-double-right"></i>
+                            </button>
+                            <button @click="removeSelected" :disabled="tempSelectedChosen.length === 0"
+                                class="w-12 h-10 lg:w-10 lg:h-10 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                                title="Quitar seleccionados">
+                                <i class="pi pi-angle-left"></i>
+                            </button>
+                            <button @click="removeAll" :disabled="selectedBienes.length === 0"
+                                class="w-12 h-10 lg:w-10 lg:h-10 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                                title="Quitar todos">
+                                <i class="pi pi-angle-double-left"></i>
+                            </button>
+                        </div>
+
+                        <!-- Lista de Bienes Seleccionados -->
+                        <div class="border border-green-200 rounded-lg overflow-hidden flex flex-col bg-green-50/30">
+                            <div class="bg-green-100 px-4 py-3 border-b border-green-200">
+                                <h4 class="font-semibold text-green-700 flex items-center gap-2">
+                                    <i class="pi pi-check-circle text-green-600"></i>
+                                    Bienes Seleccionados
+                                    <span class="ml-auto text-sm font-normal text-green-600">
+                                        {{ selectedBienes.length }} seleccionado(s)
+                                    </span>
+                                </h4>
+                            </div>
+                            <div class="p-2 border-b border-green-200 bg-green-50">
+                                <input type="text" v-model="selectedSearch" placeholder="Filtrar seleccionados..."
+                                    class="w-full border border-green-300 rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none" />
+                            </div>
+                            <div class="flex-1 overflow-y-auto max-h-72 min-h-[200px]">
+                                <div v-for="bien in filteredSelectedBienes" :key="bien.codigo_completo"
+                                    @click="toggleChosenSelection(bien)" :class="['px-3 py-2 cursor-pointer border-b border-green-100 hover:bg-green-100 transition-colors',
+                                        tempSelectedChosen.includes(bien) ? 'bg-green-200' : '']">
+                                    <div class="flex items-start gap-2">
+                                        <input type="checkbox" :checked="tempSelectedChosen.includes(bien)"
+                                            @click.stop="toggleChosenSelection(bien)"
+                                            class="mt-1 rounded border-green-300 text-green-600 focus:ring-green-500" />
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-sm font-mono font-medium text-gray-900">
+                                                {{ bien.codigo_completo }}
+                                            </div>
+                                            <div class="text-xs text-gray-600 truncate" :title="bien.detalle_bien">
+                                                {{ bien.detalle_bien }}
+                                            </div>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <span class="text-xs text-gray-400">{{ bien.oficina }}</span>
+                                                <span
+                                                    :class="bien.tipo_registro === 'SIGA' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'"
+                                                    class="px-1.5 py-0.5 rounded text-xs font-medium">
+                                                    {{ bien.tipo_registro }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-if="filteredSelectedBienes.length === 0"
+                                    class="px-4 py-8 text-center text-gray-400">
+                                    <i class="pi pi-inbox text-3xl mb-2"></i>
+                                    <p class="text-sm">No hay bienes seleccionados</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -247,9 +303,86 @@ const pagination = ref({
     total_pages: 0
 });
 
-const isAllSelected = computed(() => {
-    return bienes.value.length > 0 && selectedBienes.value.length === bienes.value.length;
+// Dual list picker state
+const availableSearch = ref('');
+const selectedSearch = ref('');
+const tempSelectedAvailable = ref<Bien[]>([]);
+const tempSelectedChosen = ref<Bien[]>([]);
+
+// Computed: bienes disponibles (los que no están seleccionados)
+const availableBienes = computed(() => {
+    return bienes.value.filter(b =>
+        !selectedBienes.value.some(s => s.codigo_completo === b.codigo_completo)
+    );
 });
+
+// Computed: filtrar bienes disponibles por búsqueda local
+const filteredAvailableBienes = computed(() => {
+    if (!availableSearch.value) return availableBienes.value;
+    const search = availableSearch.value.toLowerCase();
+    return availableBienes.value.filter(b =>
+        b.codigo_completo.toLowerCase().includes(search) ||
+        b.detalle_bien.toLowerCase().includes(search) ||
+        b.oficina.toLowerCase().includes(search)
+    );
+});
+
+// Computed: filtrar bienes seleccionados por búsqueda local
+const filteredSelectedBienes = computed(() => {
+    if (!selectedSearch.value) return selectedBienes.value;
+    const search = selectedSearch.value.toLowerCase();
+    return selectedBienes.value.filter(b =>
+        b.codigo_completo.toLowerCase().includes(search) ||
+        b.detalle_bien.toLowerCase().includes(search) ||
+        b.oficina.toLowerCase().includes(search)
+    );
+});
+
+// Toggle selección temporal en lista disponibles
+const toggleAvailableSelection = (bien: Bien) => {
+    const index = tempSelectedAvailable.value.findIndex(b => b.codigo_completo === bien.codigo_completo);
+    if (index > -1) {
+        tempSelectedAvailable.value.splice(index, 1);
+    } else {
+        tempSelectedAvailable.value.push(bien);
+    }
+};
+
+// Toggle selección temporal en lista seleccionados
+const toggleChosenSelection = (bien: Bien) => {
+    const index = tempSelectedChosen.value.findIndex(b => b.codigo_completo === bien.codigo_completo);
+    if (index > -1) {
+        tempSelectedChosen.value.splice(index, 1);
+    } else {
+        tempSelectedChosen.value.push(bien);
+    }
+};
+
+// Agregar seleccionados temporales a la lista de seleccionados
+const addSelected = () => {
+    selectedBienes.value.push(...tempSelectedAvailable.value);
+    tempSelectedAvailable.value = [];
+};
+
+// Agregar todos los disponibles
+const addAll = () => {
+    selectedBienes.value.push(...availableBienes.value);
+    tempSelectedAvailable.value = [];
+};
+
+// Quitar seleccionados temporales de la lista de seleccionados
+const removeSelected = () => {
+    selectedBienes.value = selectedBienes.value.filter(b =>
+        !tempSelectedChosen.value.some(t => t.codigo_completo === b.codigo_completo)
+    );
+    tempSelectedChosen.value = [];
+};
+
+// Quitar todos los seleccionados
+const removeAll = () => {
+    selectedBienes.value = [];
+    tempSelectedChosen.value = [];
+};
 
 const canGenerate = computed(() => {
     if (currentTab.value === 'selection') {
@@ -270,6 +403,11 @@ const resetForm = () => {
     selectedOffices.value = [];
     filters.value = { office: '', search: '' };
     pagination.value.page = 1;
+    // Limpiar estado del dual list picker
+    availableSearch.value = '';
+    selectedSearch.value = '';
+    tempSelectedAvailable.value = [];
+    tempSelectedChosen.value = [];
 };
 
 const fetchOffices = async () => {
@@ -324,14 +462,6 @@ const debouncedSearch = () => {
 const changePage = (page: number) => {
     pagination.value.page = page;
     fetchBienes();
-};
-
-const toggleSelectAll = () => {
-    if (isAllSelected.value) {
-        selectedBienes.value = [];
-    } else {
-        selectedBienes.value = [...bienes.value];
-    }
 };
 
 const generatePDF = async () => {

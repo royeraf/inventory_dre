@@ -31,6 +31,52 @@
             </button>
           </div>
 
+          <!-- Información del Bien -->
+          <div class="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-100 px-6 py-4 flex-shrink-0">
+            <div class="flex items-start gap-4">
+              <!-- Icono -->
+              <div class="flex-shrink-0 w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                <i class="pi pi-box text-white text-xl"></i>
+              </div>
+
+              <!-- Contenido -->
+              <div class="min-w-0 flex-1">
+                <!-- Denominación -->
+                <p class="text-xs font-medium text-purple-600 uppercase tracking-wide mb-1">Denominación del Bien</p>
+                <p class="text-lg font-bold text-gray-900 leading-tight mb-3"
+                  :title="bien?.detalle_bien || bien?.descripcion">
+                  {{ bien?.detalle_bien || bien?.descripcion || 'Sin denominación' }}
+                </p>
+
+                <!-- Códigos y Tipo en una fila -->
+                <div class="flex flex-wrap items-center gap-4">
+                  <!-- Código Patrimonial -->
+                  <div class="flex items-center gap-2">
+                    <i class="pi pi-hashtag text-purple-500 text-sm"></i>
+                    <span class="text-xs text-gray-500">Cód. Patrimonial:</span>
+                    <span class="text-sm font-bold text-gray-900 font-mono">{{ bien?.codigo_patrimonio || 'N/A'
+                      }}</span>
+                  </div>
+
+                  <!-- Código Interno -->
+                  <div class="flex items-center gap-2">
+                    <i class="pi pi-tag text-blue-500 text-sm"></i>
+                    <span class="text-xs text-gray-500">Cód. Interno:</span>
+                    <span class="text-sm font-bold text-gray-900 font-mono">{{ bien?.codigo_interno || 'N/A' }}</span>
+                  </div>
+
+                  <!-- Tipo Registro (SIGA/SOBRANTE) -->
+                  <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-1 rounded-full text-xs font-bold"
+                      :class="bien?.tipo_registro === 'SOBRANTE' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'">
+                      {{ bien?.tipo_registro || 'SIGA' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Tabs -->
           <div class="bg-gray-50 border-b border-gray-200 flex-shrink-0">
             <nav class="flex px-6 -mb-px space-x-6" aria-label="Tabs">
@@ -256,12 +302,26 @@ const auth = useAuthStore();
 interface Bien {
   id: number;
   codigo_patrimonio: string;
+  codigo_interno?: string;
+  codigo_completo?: string;
   descripcion: string;
+  detalle_bien?: string;
+  marca?: string;
+  modelo?: string;
+  numero_serie?: string;
+  serie?: string;
+  color?: string;
+  dimension?: string;
+  tipo_origen?: string;
+  tipo_registro?: string;
   ubicacion_id: number | null;
   ubicacion_nombre?: string;
   responsable_id: number | null;
   responsable_nombre?: string;
+  tipo_modalidad?: string;
   estado?: string;
+  estado_nombre?: string;
+  observacion?: string;
 }
 
 interface Movimiento {
